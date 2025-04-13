@@ -1,0 +1,500 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --secondary-color: #2ecc71;
+    --secondary-dark: #27ae60;
+    --background-color: #f5f7fa;
+    --card-bg: #ffffff;
+    --text-color: #2c3e50;
+    --border-color: #e1e8ed;
+    --shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --placeholder-color: #95a5a6;
+    --muted-text: #7f8c8d;
+    --range-bg: linear-gradient(to right, #3498db, #2ecc71);
+    --slider-thumb-bg: #ffffff;
+    --slider-thumb-border: #3498db;
+    --value-display-bg: #2c3e50;
+    --value-display-text: #ffffff;
+    --github-bg: #24292e;
+    --github-bg-hover: #0366d6;
+}
+
+/* Dark mode variables */
+.dark-mode {
+    --primary-color: #00BCD4;
+    --primary-dark: #0097A7;
+    --secondary-color: #4CAF50;
+    --secondary-dark: #388E3C;
+    --background-color: #1a1a2e;
+    --card-bg: #222439;
+    --text-color: #e0e0e0;
+    --border-color: #34344e;
+    --shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    --placeholder-color: #6c7293;
+    --muted-text: #8f94b4;
+    --range-bg: linear-gradient(to right, #00BCD4, #4CAF50);
+    --slider-thumb-bg: #222439;
+    --slider-thumb-border: #00BCD4;
+    --value-display-bg: #00BCD4;
+    --value-display-text: #ffffff;
+    --github-bg: #333;
+    --github-bg-hover: #00BCD4;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    flex: 1;
+    text-align: center;
+}
+
+.theme-toggle {
+    cursor: pointer;
+    font-size: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.theme-toggle:hover {
+    transform: rotate(30deg);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.tagline {
+    color: var(--muted-text);
+    font-size: 1.1rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.upload-section {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 25px;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.upload-btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 14px 30px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow);
+}
+
+.upload-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.upload-btn i {
+    margin-right: 8px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.input-group label {
+    width: 150px;
+    display: inline-block;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.input-group input, .input-group select {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.dark-mode .input-group input, .dark-mode .input-group select {
+    background-color: #2c2c45;
+}
+
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.range-with-value {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 15px;
+}
+
+.input-group input[type="range"] {
+    flex: 1;
+    padding: 0;
+    height: 6px;
+    -webkit-appearance: none;
+    background: var(--range-bg);
+    border-radius: 3px;
+    border: none;
+}
+
+.input-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--slider-thumb-bg);
+    border: 2px solid var(--slider-thumb-border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.input-group input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--primary-color);
+}
+
+.value-display {
+    background: var(--value-display-bg);
+    color: var(--value-display-text);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
+}
+
+.color-value-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.selected-color-display {
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    background-color: var(--primary-color);
+    color: white;
+    min-width: 100px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Color palette row */
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.palette-color {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 3px solid var(--border-color);
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.palette-color:hover {
+    transform: scale(1.15);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.palette-color.active {
+    border-color: var(--primary-color);
+    transform: scale(1.15);
+}
+
+.palette-color.active::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.input-group select {
+    background-color: var(--card-bg);
+    cursor: pointer;
+}
+
+.input-group input[type="text"]#customDesign {
+    max-width: 60px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.action-btn {
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary-btn {
+    background-color: var(--secondary-color);
+    flex: 2;
+    justify-content: center;
+}
+
+.primary-btn:hover {
+    background-color: var(--secondary-dark);
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background-color: var(--primary-color);
+    flex: 1;
+    justify-content: center;
+}
+
+.secondary-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.preview-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.preview-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.image-preview, .watermarked-preview {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    height: 100%;
+    position: relative;
+}
+
+.image-preview img, .watermarked-preview canvas {
+    max-width: 100%;
+    max-height: 500px;
+    display: block;
+    border-radius: var(--border-radius);
+}
+
+.placeholder-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--placeholder-color);
+    gap: 15px;
+}
+
+.placeholder-text i {
+    margin-bottom: 10px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 20px;
+    color: var(--muted-text);
+    border-top: 1px solid var(--border-color);
+}
+
+/* GitHub button */
+.github-link {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--github-bg);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, background-color 0.3s;
+    z-index: 100;
+}
+
+.github-link:hover {
+    transform: translateY(-5px) rotate(360deg);
+    background-color: var(--github-bg-hover);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .editor-section {
+        flex-direction: row;
+    }
+    
+    .watermark-controls {
+        flex: 1;
+        max-width: 400px;
+    }
+    
+    .preview-section {
+        flex: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .input-group label {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .range-with-value, .color-value-container {
+        width: 100%;
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .color-palette {
+        grid-template-columns: repeat(4, 1fr);
+    }
+} 
