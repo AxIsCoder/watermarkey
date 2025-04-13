@@ -213,7 +213,7 @@ function calculateAdaptiveFontSize(imageWidth, imageHeight, density) {
     const smallerDimension = Math.min(imageWidth, imageHeight);
     
     // The base size is influenced by the density (more watermarks = smaller text)
-    let adaptiveSize = smallerDimension / (10 + density * 5);
+    let adaptiveSize = smallerDimension / (8 + density * 4);
     
     // Apply the user's size preference as a percentage adjustment
     const userSizePercentage = textSizeInput.value / 30; // Normalize around the middle value
@@ -269,20 +269,38 @@ function applyWatermark() {
     ctx.fillStyle = color;
     ctx.font = `${adaptiveFontSize}px Arial`;
     
-    // Calculate the number of watermarks needed to cover the image
-    // This is affected by density but ensures proper coverage regardless of image size
-    const rows = Math.ceil((density + 1) * 1.5);
-    const cols = Math.ceil((density + 1) * 1.5);
+    // Get text metrics to calculate proper spacing
+    const textMetrics = ctx.measureText(formattedText);
+    const textWidth = textMetrics.width;
+    const textHeight = adaptiveFontSize;
     
-    // Calculate the gap between watermarks
-    const xGap = canvas.width / cols;
-    const yGap = canvas.height / rows;
+    // Density factor - higher density means more watermarks
+    // Increased multiplier values create more space between watermarks
+    const densityMultiplier = 2.5 - (0.25 * density); // Larger multiplier = fewer watermarks
     
-    // Create diagonal pattern of watermarks
-    for (let y = -1; y <= rows; y++) {
-        for (let x = -1; x <= cols; x++) {
-            const xPos = x * xGap;
-            const yPos = y * yGap;
+    // Calculate the size of each grid cell
+    const cellWidth = textWidth * densityMultiplier;
+    const cellHeight = textHeight * densityMultiplier;
+    
+    // Calculate number of rows and columns needed
+    const cols = Math.ceil(canvas.width / cellWidth) + 4;
+    const rows = Math.ceil(canvas.height / cellHeight) + 4;
+    
+    // Calculate offsets to center the grid
+    const startX = -cellWidth * 2;
+    const startY = -cellHeight * 2;
+    
+    // Create diagonal pattern of watermarks with increased spacing
+    for (let y = 0; y < rows; y += 1) {
+        for (let x = 0; x < cols; x += 1) {
+            // Calculate position with diagonal offset
+            let xPos = startX + (x * cellWidth);
+            let yPos = startY + (y * cellHeight);
+            
+            // Add offset to even/odd rows for more natural pattern
+            if (y % 2 === 1) {
+                xPos += cellWidth / 2;
+            }
             
             ctx.save();
             ctx.translate(xPos, yPos);
