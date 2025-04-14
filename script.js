@@ -1,348 +1,291 @@
-// DOM Elements
-const imageInput = document.getElementById('imageInput');
-const imagePreview = document.getElementById('imagePreview');
-const watermarkedPreview = document.getElementById('watermarkedPreview');
-const controls = document.getElementById('controls');
-const applyWatermarkBtn = document.getElementById('applyWatermark');
-const downloadBtn = document.getElementById('downloadBtn');
-const watermarkTextInput = document.getElementById('watermarkText');
-const designTypeSelect = document.getElementById('designType');
-const customDesignGroup = document.getElementById('customDesignGroup');
-const customDesignInput = document.getElementById('customDesign');
-const textSpacingInput = document.getElementById('textSpacing');
-const textSpacingValue = document.getElementById('textSpacingValue');
-const watermarkOpacityInput = document.getElementById('watermarkOpacity');
-const opacityValue = document.getElementById('opacityValue');
-const textSizeInput = document.getElementById('textSize');
-const textSizeValue = document.getElementById('textSizeValue');
-const watermarkDensityInput = document.getElementById('watermarkDensity');
-const densityValue = document.getElementById('densityValue');
-const colorValue = document.getElementById('colorValue');
-const colorPalette = document.getElementById('colorPalette');
-const watermarkRotationInput = document.getElementById('watermarkRotation');
-const rotationValue = document.getElementById('rotationValue');
-const themeToggle = document.getElementById('themeToggle');
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const themeToggle = document.getElementById('themeToggle');
+    const imageInput = document.getElementById('imageInput');
+    const originalPreview = document.getElementById('originalPreview');
+    const originalImage = document.getElementById('originalImage');
+    const watermarkedPreview = document.getElementById('watermarkedPreview');
+    const watermarkCanvas = document.getElementById('watermarkCanvas');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const watermarkText = document.getElementById('watermarkText');
+    const fontFamily = document.getElementById('fontFamily');
+    const colorPalette = document.getElementById('colorPalette');
+    const selectedColorDisplay = document.getElementById('selectedColor');
+    const opacitySlider = document.getElementById('opacityRange');
+    const opacityValue = document.getElementById('opacityValue');
+    const textSizeSlider = document.getElementById('textSizeRange');
+    const textSizeValue = document.getElementById('textSizeValue');
+    const textSpacingSlider = document.getElementById('spacingRange');
+    const textSpacingValue = document.getElementById('spacingValue');
+    const densitySlider = document.getElementById('densityRange');
+    const densityValue = document.getElementById('densityValue');
+    const rotationSlider = document.getElementById('rotationRange');
+    const rotationValue = document.getElementById('rotationValue');
+    const githubLink = document.getElementById('githubLink');
 
-// Variables
-let originalImage = null;
-let isDarkMode = false;
-let currentColor = "#00BCD4"; // Default color
+    // Global variables
+    let originalImageObj = null;
+    let watermarkedImage = null;
+    let currentColor = '#ffffff';  // Set to default white color from HTML
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
 
-// Event Listeners
-imageInput.addEventListener('change', handleImageUpload);
-applyWatermarkBtn.addEventListener('click', applyWatermark);
-downloadBtn.addEventListener('click', downloadImage);
-watermarkTextInput.addEventListener('input', applyWatermark);
-designTypeSelect.addEventListener('change', handleDesignTypeChange);
-customDesignInput.addEventListener('input', applyWatermark);
-textSpacingInput.addEventListener('input', handleTextSpacingChange);
-watermarkOpacityInput.addEventListener('input', handleOpacityChange);
-textSizeInput.addEventListener('input', handleTextSizeChange);
-watermarkDensityInput.addEventListener('input', handleDensityChange);
-watermarkRotationInput.addEventListener('input', handleRotationChange);
-themeToggle.addEventListener('click', toggleDarkMode);
-
-// Set up color palette
-document.querySelectorAll('.palette-color').forEach(colorEl => {
-    colorEl.addEventListener('click', function() {
-        // Remove active class from all colors
-        document.querySelectorAll('.palette-color').forEach(el => {
-            el.classList.remove('active');
-        });
-        
-        // Add active class to clicked color
-        this.classList.add('active');
-        
-        // Set current color and update display
-        currentColor = this.getAttribute('data-color');
-        updateColorDisplay();
-        
-        // Apply watermark with new color
-        applyWatermark();
-    });
-});
-
-// Dark mode functionality
-function toggleDarkMode() {
-    isDarkMode = !isDarkMode;
-    
+    // Apply saved dark mode on load
     if (isDarkMode) {
         document.body.classList.add('dark-mode');
         themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        themeToggle.title = "Toggle Light Mode";
-    } else {
-        document.body.classList.remove('dark-mode');
-        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-        themeToggle.title = "Toggle Dark Mode";
     }
-    
-    // Save preference to local storage
-    localStorage.setItem('darkMode', isDarkMode);
-}
 
-// Load dark mode preference
-function loadDarkModePreference() {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    
-    if (savedDarkMode === 'true') {
-        isDarkMode = true;
-        document.body.classList.add('dark-mode');
-        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        themeToggle.title = "Toggle Light Mode";
-    }
-}
+    // Theme Toggle
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
 
-// Initialize value displays
-function initializeValueDisplays() {
-    handleTextSpacingChange();
-    handleOpacityChange();
-    handleTextSizeChange();
-    handleDensityChange();
-    updateColorDisplay();
-    handleRotationChange();
-}
-
-// Value display handlers
-function handleTextSpacingChange() {
-    textSpacingValue.textContent = textSpacingInput.value;
-    applyWatermark();
-}
-
-function handleOpacityChange() {
-    opacityValue.textContent = `${watermarkOpacityInput.value}%`;
-    applyWatermark();
-}
-
-function handleTextSizeChange() {
-    textSizeValue.textContent = `${textSizeInput.value}px`;
-    applyWatermark();
-}
-
-function handleDensityChange() {
-    densityValue.textContent = watermarkDensityInput.value;
-    applyWatermark();
-}
-
-function updateColorDisplay() {
-    colorValue.textContent = currentColor.toUpperCase();
-    colorValue.style.backgroundColor = currentColor;
-    
-    // Calculate text color based on brightness
-    const hex = currentColor.substring(1);
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    
-    // Change text color based on background brightness
-    colorValue.style.color = brightness > 128 ? '#000' : '#fff';
-}
-
-function handleRotationChange() {
-    rotationValue.textContent = `${watermarkRotationInput.value}°`;
-    applyWatermark();
-}
-
-// Show/hide custom design input based on selection
-function handleDesignTypeChange() {
-    if (designTypeSelect.value === 'custom') {
-        customDesignGroup.style.display = 'flex';
-    } else {
-        customDesignGroup.style.display = 'none';
-    }
-    applyWatermark();
-}
-
-// Functions
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            originalImage = img;
+    // Color Palette Selection
+    colorPalette.addEventListener('click', function(e) {
+        if (e.target.classList.contains('palette-color')) {
+            // Remove active class from all colors
+            document.querySelectorAll('.palette-color').forEach(color => {
+                color.classList.remove('active');
+            });
             
-            // Display original image
-            imagePreview.innerHTML = '';
-            const displayImg = document.createElement('img');
-            displayImg.src = e.target.result;
-            imagePreview.appendChild(displayImg);
+            // Add active class to selected color
+            e.target.classList.add('active');
             
-            // Show controls
-            controls.style.display = 'block';
+            // Update selected color
+            currentColor = e.target.dataset.color;
+            selectedColorDisplay.textContent = currentColor;
             
-            // Initialize value displays
-            initializeValueDisplays();
-            
-            // Apply watermark
-            applyWatermark();
-        };
-        img.src = e.target.result;
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-function getDesignSymbol() {
-    const designType = designTypeSelect.value;
-    switch(designType) {
-        case 'none':
-            return '';
-        case 'bullet':
-            return ' • ';
-        case 'star':
-            return ' ★ ';
-        case 'diamond':
-            return ' ◆ ';
-        case 'hearts':
-            return ' ❤ ';
-        case 'line':
-            return ' ― ';
-        case 'custom':
-            return ` ${customDesignInput.value || '•'} `;
-        default:
-            return '';
-    }
-}
-
-function calculateAdaptiveFontSize(imageWidth, imageHeight, density) {
-    // Calculate a base font size that scales with the image dimensions
-    const smallerDimension = Math.min(imageWidth, imageHeight);
-    
-    // The base size is influenced by the density (more watermarks = smaller text)
-    let adaptiveSize = smallerDimension / (8 + density * 4);
-    
-    // Apply the user's size preference as a percentage adjustment
-    const userSizePercentage = textSizeInput.value / 30; // Normalize around the middle value
-    adaptiveSize = adaptiveSize * userSizePercentage;
-    
-    // Ensure a reasonable minimum and maximum size
-    adaptiveSize = Math.max(adaptiveSize, 12);
-    adaptiveSize = Math.min(adaptiveSize, smallerDimension / 4);
-    
-    return Math.round(adaptiveSize);
-}
-
-function applyWatermark() {
-    if (!originalImage) return;
-
-    // Create canvas
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas dimensions to match image
-    canvas.width = originalImage.width;
-    canvas.height = originalImage.height;
-    
-    // Draw original image
-    ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-    
-    // Get watermark settings
-    const watermarkText = watermarkTextInput.value || 'WATERMARK';
-    const designSymbol = getDesignSymbol();
-    const userTextSpacing = parseInt(textSpacingInput.value);
-    const opacity = watermarkOpacityInput.value / 100;
-    const density = parseInt(watermarkDensityInput.value);
-    const color = currentColor;
-    const rotation = parseInt(watermarkRotationInput.value);
-    
-    // Calculate adaptive font size based on image dimensions
-    const adaptiveFontSize = calculateAdaptiveFontSize(canvas.width, canvas.height, density);
-    
-    // Calculate adaptive spacing based on image size and font size
-    const adaptiveSpacing = Math.max(1, Math.floor(userTextSpacing * (adaptiveFontSize / 20)));
-    
-    // Format the watermark with design
-    let formattedText = watermarkText;
-    if (designSymbol && designTypeSelect.value !== 'none') {
-        // Create text with design and spacing
-        const spaces = ' '.repeat(adaptiveSpacing);
-        formattedText = `${watermarkText}${spaces}${designSymbol}${spaces}`;
-    }
-    
-    // Apply watermark pattern
-    ctx.save();
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = color;
-    ctx.font = `${adaptiveFontSize}px Arial`;
-    
-    // Get text metrics to calculate proper spacing
-    const textMetrics = ctx.measureText(formattedText);
-    const textWidth = textMetrics.width;
-    const textHeight = adaptiveFontSize;
-    
-    // Density factor - higher density means more watermarks
-    // Increased multiplier values create more space between watermarks
-    const densityMultiplier = 2.5 - (0.25 * density); // Larger multiplier = fewer watermarks
-    
-    // Calculate the size of each grid cell
-    const cellWidth = textWidth * densityMultiplier;
-    const cellHeight = textHeight * densityMultiplier;
-    
-    // Calculate number of rows and columns needed
-    const cols = Math.ceil(canvas.width / cellWidth) + 4;
-    const rows = Math.ceil(canvas.height / cellHeight) + 4;
-    
-    // Calculate offsets to center the grid
-    const startX = -cellWidth * 2;
-    const startY = -cellHeight * 2;
-    
-    // Create diagonal pattern of watermarks with increased spacing
-    for (let y = 0; y < rows; y += 1) {
-        for (let x = 0; x < cols; x += 1) {
-            // Calculate position with diagonal offset
-            let xPos = startX + (x * cellWidth);
-            let yPos = startY + (y * cellHeight);
-            
-            // Add offset to even/odd rows for more natural pattern
-            if (y % 2 === 1) {
-                xPos += cellWidth / 2;
+            if (originalImageObj) {
+                applyWatermark();
             }
-            
-            ctx.save();
-            ctx.translate(xPos, yPos);
-            ctx.rotate(rotation * Math.PI / 180);
-            ctx.fillText(formattedText, 0, 0);
-            ctx.restore();
+        }
+    });
+
+    // Update Range Slider Values
+    function updateRangeValue(slider, valueDisplay, suffix = '') {
+        valueDisplay.textContent = slider.value + suffix;
+        if (originalImageObj) {
+            applyWatermark();
         }
     }
-    
-    ctx.restore();
-    
-    // Display watermarked image
-    watermarkedPreview.innerHTML = '';
-    watermarkedPreview.appendChild(canvas);
-    
-    // Show download button
-    downloadBtn.style.display = 'inline-block';
-}
 
-function downloadImage() {
-    if (!watermarkedPreview.querySelector('canvas')) return;
-    
-    const canvas = watermarkedPreview.querySelector('canvas');
-    const image = canvas.toDataURL('image/png');
-    
-    const link = document.createElement('a');
-    link.download = 'watermarked-image.png';
-    link.href = image;
-    link.click();
-}
+    // Setup event listeners for sliders
+    textSpacingSlider.addEventListener('input', () => updateRangeValue(textSpacingSlider, textSpacingValue, 'px'));
+    opacitySlider.addEventListener('input', () => updateRangeValue(opacitySlider, opacityValue, '%'));
+    textSizeSlider.addEventListener('input', () => updateRangeValue(textSizeSlider, textSizeValue, 'px'));
+    densitySlider.addEventListener('input', () => updateRangeValue(densitySlider, densityValue));
+    rotationSlider.addEventListener('input', () => updateRangeValue(rotationSlider, rotationValue, '°'));
 
-// Initialize app
-function init() {
-    // Load dark mode preference
-    loadDarkModePreference();
-    
-    // Set initial value displays
-    initializeValueDisplays();
-    
-    // Custom watermark behavior
-    handleDesignTypeChange();
-}
+    // Input Change Handlers
+    watermarkText.addEventListener('input', function() {
+        if (originalImageObj) {
+            applyWatermark();
+        }
+    });
 
-// Initialize on DOM load
-document.addEventListener('DOMContentLoaded', init); 
+    fontFamily.addEventListener('change', function() {
+        if (originalImageObj) {
+            applyWatermark();
+        }
+    });
+
+    // Image Upload Handler
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Create new image from file
+                const img = new Image();
+                img.onload = function() {
+                    originalImageObj = img;
+                    displayOriginalImage();
+                    applyWatermark();
+                    // Enable reset button
+                    resetBtn.disabled = false;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Display Original Image
+    function displayOriginalImage() {
+        if (!originalImageObj) return;
+        
+        // Show the original image and hide placeholder
+        const placeholder = originalPreview.querySelector('.preview-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+        
+        originalImage.src = originalImageObj.src;
+        originalImage.style.display = 'block';
+        
+        // Set max dimensions to maintain aspect ratio within container
+        originalImage.style.maxWidth = '100%';
+        originalImage.style.maxHeight = '300px';
+        originalImage.style.objectFit = 'contain';
+    }
+
+    // Apply Watermark
+    function applyWatermark() {
+        if (!originalImageObj) return;
+
+        // Set canvas dimensions to match original image
+        watermarkCanvas.width = originalImageObj.width;
+        watermarkCanvas.height = originalImageObj.height;
+        
+        // Get context
+        const ctx = watermarkCanvas.getContext('2d');
+        
+        // Draw original image
+        ctx.drawImage(originalImageObj, 0, 0);
+        
+        // Get watermark settings
+        const text = watermarkText.value || 'WatermarKey';
+        const font = fontFamily.value;
+        const color = currentColor;
+        const opacity = parseInt(opacitySlider.value) / 100;
+        const fontSize = parseInt(textSizeSlider.value);
+        const spacing = parseInt(textSpacingSlider.value);
+        const density = parseInt(densitySlider.value);
+        const rotation = parseInt(rotationSlider.value);
+        
+        // Watermark styling
+        ctx.fillStyle = color;
+        ctx.globalAlpha = opacity;
+        ctx.font = `${fontSize}px ${font}`;
+        
+        // Save the context state
+        ctx.save();
+        
+        // Rotate canvas
+        ctx.translate(watermarkCanvas.width / 2, watermarkCanvas.height / 2);
+        ctx.rotate(rotation * Math.PI / 180);
+        ctx.translate(-watermarkCanvas.width / 2, -watermarkCanvas.height / 2);
+        
+        // Get text metrics for spacing
+        const textWidth = ctx.measureText(text).width;
+        
+        // Calculate rows and columns based on density
+        const rowSpacing = spacing + fontSize;
+        const rowCount = Math.ceil(watermarkCanvas.height / rowSpacing) * density;
+        const colCount = Math.ceil(watermarkCanvas.width / (textWidth + spacing)) * density;
+        
+        // Calculate offset to center the watermark grid
+        const xOffset = -textWidth;
+        const yOffset = -fontSize * 2;
+        
+        // Draw the watermark pattern
+        for (let i = 0; i < rowCount; i++) {
+            for (let j = 0; j < colCount; j++) {
+                const x = j * (textWidth + spacing) + xOffset;
+                const y = i * rowSpacing + yOffset;
+                ctx.fillText(text, x, y);
+            }
+        }
+        
+        // Restore the context
+        ctx.restore();
+        
+        // Hide placeholder and show canvas
+        const placeholder = watermarkedPreview.querySelector('.preview-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+        
+        watermarkCanvas.style.display = 'block';
+        
+        // Set consistent display size for the canvas (same as original)
+        watermarkCanvas.style.maxWidth = '100%';
+        watermarkCanvas.style.maxHeight = '300px';
+        watermarkCanvas.style.objectFit = 'contain';
+        
+        // Store watermarked image for download
+        watermarkedImage = watermarkCanvas.toDataURL('image/png');
+        
+        // Enable download button
+        downloadBtn.disabled = false;
+    }
+
+    // Download Button
+    downloadBtn.addEventListener('click', function() {
+        if (watermarkedImage) {
+            const link = document.createElement('a');
+            link.download = 'watermarked-image.png';
+            link.href = watermarkedImage;
+            link.click();
+        }
+    });
+
+    // Reset Button
+    resetBtn.addEventListener('click', function() {
+        // Reset form elements
+        imageInput.value = '';
+        watermarkText.value = 'WatermarKey';
+        fontFamily.value = "'Roboto', sans-serif";
+        
+        // Reset sliders
+        opacitySlider.value = 50;
+        opacityValue.textContent = '50%';
+        textSizeSlider.value = 24;
+        textSizeValue.textContent = '24px';
+        textSpacingSlider.value = 120;
+        textSpacingValue.textContent = '120px';
+        densitySlider.value = 2;
+        densityValue.textContent = '2';
+        rotationSlider.value = -30;
+        rotationValue.textContent = '-30°';
+        
+        // Reset color palette
+        document.querySelectorAll('.palette-color').forEach(color => {
+            color.classList.remove('active');
+        });
+        document.querySelector('.palette-color[data-color="#ffffff"]').classList.add('active');
+        currentColor = '#ffffff';
+        selectedColorDisplay.textContent = '#ffffff';
+        
+        // Clear the canvas
+        if (watermarkCanvas.width) {
+            const ctx = watermarkCanvas.getContext('2d');
+            ctx.clearRect(0, 0, watermarkCanvas.width, watermarkCanvas.height);
+        }
+        
+        // Reset image previews
+        originalImageObj = null;
+        watermarkedImage = null;
+        
+        // Hide images and show placeholders
+        originalImage.style.display = 'none';
+        watermarkCanvas.style.display = 'none';
+        
+        const originalPlaceholder = originalPreview.querySelector('.preview-placeholder');
+        const watermarkedPlaceholder = watermarkedPreview.querySelector('.preview-placeholder');
+        
+        if (originalPlaceholder) originalPlaceholder.style.display = 'flex';
+        if (watermarkedPlaceholder) watermarkedPlaceholder.style.display = 'flex';
+        
+        // Disable buttons
+        downloadBtn.disabled = true;
+        resetBtn.disabled = true;
+    });
+
+    // Style the GitHub link
+    if (githubLink) {
+        // The floating GitHub button is now styled via CSS
+        // No need for inline styles
+    }
+
+    // Initialize with default values for range displays
+    opacityValue.textContent = opacitySlider.value + '%';
+    textSizeValue.textContent = textSizeSlider.value + 'px';
+    textSpacingValue.textContent = textSpacingSlider.value + 'px';
+    densityValue.textContent = densitySlider.value;
+    rotationValue.textContent = rotationSlider.value + '°';
+}); 

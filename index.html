@@ -3,166 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watermarkey - Add Watermarks to Images</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>WatermarKey - Easy Image Watermarking</title>
+    <meta name="description" content="WatermarKey is a simple tool to add text watermarks to your images with customizable options.">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Footer Styles */
+        footer {
+            background-color: var(--card-bg);
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-links a {
+            color: var(--text-color);
+            margin-left: 1.5rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .floating-github-link {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: #000;
+            color: white !important;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 1000;
+            text-decoration: none;
+        }
+        
+        .floating-github-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        #madeByText {
+            color: var(--text-color);
+        }
+        
+        #madeByText .fa-heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <button id="themeToggle" class="theme-toggle" title="Toggle Dark Mode">
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-water"></i>
+                <span>WatermarKey</span>
+            </div>
+            <button id="themeToggle" class="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <div class="header-content">
-                <h1><i class="fas fa-water"></i> Watermarkey</h1>
-                <p class="tagline">Add professional watermarks to your images</p>
-            </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="main-content">
-            <div class="upload-section">
-                <div class="upload-container">
-                    <input type="file" id="imageInput" accept="image/*">
-                    <label for="imageInput" class="upload-btn"><i class="fas fa-upload"></i> Select Image</label>
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="grid-layout">
+                <!-- Image Preview Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Image Preview</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Original Image Preview -->
+                        <div class="preview-container" id="originalPreview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p>Upload an image to preview</p>
+                            </div>
+                            <img id="originalImage" class="preview-image" style="display: none;">
+                        </div>
+                        
+                        <!-- Image Upload -->
+                        <div class="input-group" style="margin-top: 1rem;">
+                            <div class="file-input-container">
+                                <label for="imageInput" class="file-input-label">
+                                    <i class="fas fa-upload"></i>
+                                    Choose Image
+                                </label>
+                                <input type="file" id="imageInput" class="file-input" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Watermarked Preview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Watermarked Result</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="preview-container" id="watermarkedPreview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-water"></i>
+                                <p>Watermarked image will appear here</p>
+                            </div>
+                            <canvas id="watermarkCanvas" style="display: none;"></canvas>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="button-group" style="margin-top: 1rem;">
+                            <button id="downloadBtn" class="btn btn-success" disabled>
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                            <button id="resetBtn" class="btn btn-outline" disabled>
+                                <i class="fas fa-redo"></i>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="editor-section">
-                <div class="watermark-controls card" id="controls" style="display: none;">
-                    <h2><i class="fas fa-sliders"></i> Watermark Settings</h2>
-                    
-                    <div class="input-group">
-                        <label for="watermarkText">Watermark Text:</label>
-                        <input type="text" id="watermarkText" value="WATERMARK">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="designType">Design Between Text:</label>
-                        <select id="designType">
-                            <option value="none">None</option>
-                            <option value="bullet">• Bullet •</option>
-                            <option value="star">★ Star ★</option>
-                            <option value="diamond">◆ Diamond ◆</option>
-                            <option value="hearts">❤ Hearts ❤</option>
-                            <option value="line">― Line ―</option>
-                            <option value="custom">Custom Symbol</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group" id="customDesignGroup" style="display: none;">
-                        <label for="customDesign">Custom Symbol:</label>
-                        <input type="text" id="customDesign" value="•" maxlength="3">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="textSpacing">Text Spacing:</label>
-                        <div class="range-with-value">
-                            <input type="range" id="textSpacing" min="1" max="10" value="3">
-                            <span class="value-display" id="textSpacingValue">3</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="watermarkOpacity">Opacity:</label>
-                        <div class="range-with-value">
-                            <input type="range" id="watermarkOpacity" min="10" max="50" value="30">
-                            <span class="value-display" id="opacityValue">30%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="textSize">Text Size:</label>
-                        <div class="range-with-value">
-                            <input type="range" id="textSize" min="12" max="72" value="24">
-                            <span class="value-display" id="textSizeValue">24px</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="watermarkDensity">Density:</label>
-                        <div class="range-with-value">
-                            <input type="range" id="watermarkDensity" min="1" max="5" value="2">
-                            <span class="value-display" id="densityValue">2</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="watermarkColor">Color:</label>
-                        <div class="color-value-container">
-                            <span class="selected-color-display" id="colorValue">#00BCD4</span>
-                        </div>
-                    </div>
-                    
-                    <div class="color-palette" id="colorPalette">
-                        <div class="palette-color active" data-color="#00BCD4" style="background-color: #00BCD4;"></div>
-                        <div class="palette-color" data-color="#ff0000" style="background-color: #ff0000;"></div>
-                        <div class="palette-color" data-color="#ff5722" style="background-color: #ff5722;"></div>
-                        <div class="palette-color" data-color="#e91e63" style="background-color: #e91e63;"></div>
-                        <div class="palette-color" data-color="#9c27b0" style="background-color: #9c27b0;"></div>
-                        <div class="palette-color" data-color="#673ab7" style="background-color: #673ab7;"></div>
-                        <div class="palette-color" data-color="#3f51b5" style="background-color: #3f51b5;"></div>
-                        <div class="palette-color" data-color="#2196f3" style="background-color: #2196f3;"></div>
-                        <div class="palette-color" data-color="#03a9f4" style="background-color: #03a9f4;"></div>
-                        <div class="palette-color" data-color="#009688" style="background-color: #009688;"></div>
-                        <div class="palette-color" data-color="#4caf50" style="background-color: #4caf50;"></div>
-                        <div class="palette-color" data-color="#8bc34a" style="background-color: #8bc34a;"></div>
-                        <div class="palette-color" data-color="#cddc39" style="background-color: #cddc39;"></div>
-                        <div class="palette-color" data-color="#ffeb3b" style="background-color: #ffeb3b;"></div>
-                        <div class="palette-color" data-color="#ffc107" style="background-color: #ffc107;"></div>
-                        <div class="palette-color" data-color="#000000" style="background-color: #000000;"></div>
-                        <div class="palette-color" data-color="#777777" style="background-color: #777777;"></div>
-                        <div class="palette-color" data-color="#ffffff" style="background-color: #ffffff;"></div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="watermarkRotation">Rotation:</label>
-                        <div class="range-with-value">
-                            <input type="range" id="watermarkRotation" min="-45" max="45" value="-30">
-                            <span class="value-display" id="rotationValue">-30°</span>
-                        </div>
-                    </div>
-                    
-                    <div class="button-group">
-                        <button id="applyWatermark" class="action-btn primary-btn"><i class="fas fa-magic"></i> Apply Watermark</button>
-                        <button id="downloadBtn" class="action-btn secondary-btn" style="display: none;"><i class="fas fa-download"></i> Download Image</button>
-                    </div>
+            <!-- Watermark Settings -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h2>Watermark Settings</h2>
                 </div>
-                
-                <div class="preview-section">
-                    <div class="preview-container">
-                        <div class="preview-card">
-                            <h3>Original Image</h3>
-                            <div class="image-preview card" id="imagePreview">
-                                <div class="placeholder-text">
-                                    <i class="fas fa-image fa-3x"></i>
-                                    <p>No image selected</p>
+                <div class="card-body">
+                    <!-- Text Settings -->
+                    <div class="settings-group">
+                        <div class="settings-title">
+                            <i class="fas fa-font"></i>
+                            Text Settings
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="watermarkText">Watermark Text</label>
+                            <input type="text" id="watermarkText" class="form-control" placeholder="Enter your watermark text" value="WatermarKey">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="fontFamily">Font Style</label>
+                            <select id="fontFamily" class="form-control">
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="'Times New Roman', serif">Times New Roman</option>
+                                <option value="'Courier New', monospace">Courier New</option>
+                                <option value="Georgia, serif">Georgia</option>
+                                <option value="Verdana, sans-serif">Verdana</option>
+                                <option value="'Roboto', sans-serif" selected>Roboto</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Color Settings -->
+                    <div class="settings-group">
+                        <div class="settings-title">
+                            <i class="fas fa-palette"></i>
+                            Color Settings
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="textColor">Text Color</label>
+                            <div class="color-palette" id="colorPalette">
+                                <div class="palette-color active" data-color="#ffffff" style="background-color: #ffffff;"></div>
+                                <div class="palette-color" data-color="#000000" style="background-color: #000000;"></div>
+                                <div class="palette-color" data-color="#ff0000" style="background-color: #ff0000;"></div>
+                                <div class="palette-color" data-color="#00ff00" style="background-color: #00ff00;"></div>
+                                <div class="palette-color" data-color="#0000ff" style="background-color: #0000ff;"></div>
+                                <div class="palette-color" data-color="#ffff00" style="background-color: #ffff00;"></div>
+                                <div class="palette-color" data-color="#ff00ff" style="background-color: #ff00ff;"></div>
+                                <div class="palette-color" data-color="#00ffff" style="background-color: #00ffff;"></div>
+                            </div>
+                            <div class="color-display">Selected: <span id="selectedColor">#ffffff</span></div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="opacityRange">Opacity</label>
+                            <div class="slider-container">
+                                <div class="slider-control">
+                                    <input type="range" id="opacityRange" min="0" max="100" value="50">
                                 </div>
+                                <span class="range-value" id="opacityValue">50%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layout Settings -->
+                    <div class="settings-group">
+                        <div class="settings-title">
+                            <i class="fas fa-layer-group"></i>
+                            Layout Settings
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="textSizeRange">Text Size</label>
+                            <div class="slider-container">
+                                <div class="slider-control">
+                                    <input type="range" id="textSizeRange" min="10" max="100" value="24">
+                                </div>
+                                <span class="range-value" id="textSizeValue">24px</span>
                             </div>
                         </div>
                         
-                        <div class="preview-card">
-                            <h3>Watermarked Image</h3>
-                            <div class="watermarked-preview card" id="watermarkedPreview">
-                                <div class="placeholder-text">
-                                    <i class="fas fa-image fa-3x"></i>
-                                    <p>Preview will appear here</p>
+                        <div class="input-group">
+                            <label for="spacingRange">Text Spacing</label>
+                            <div class="slider-container">
+                                <div class="slider-control">
+                                    <input type="range" id="spacingRange" min="50" max="300" value="120">
                                 </div>
+                                <span class="range-value" id="spacingValue">120px</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="densityRange">Density</label>
+                            <div class="slider-container">
+                                <div class="slider-control">
+                                    <input type="range" id="densityRange" min="1" max="5" value="2">
+                                </div>
+                                <span class="range-value" id="densityValue">2</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="rotationRange">Rotation (degrees)</label>
+                            <div class="slider-container">
+                                <div class="slider-control">
+                                    <input type="range" id="rotationRange" min="-45" max="45" value="-30">
+                                </div>
+                                <span class="range-value" id="rotationValue">-30°</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </main>
 
-        <footer>
-            <p>Watermarkey - Create professional watermarks with ease.</p>
-        </footer>
-    </div>
-    
-    <a href="https://github.com/axiscoder/watermarkey" target="_blank" class="github-link" title="View on GitHub">
+    <!-- Floating GitHub Button -->
+    <a href="https://github.com/axody/watermarkey" id="githubLink" class="floating-github-link" title="View on GitHub">
         <i class="fab fa-github"></i>
     </a>
-    
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="copyright">
+                &copy; 2025 WatermarKey. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <span id="madeByText">Made with <i class="fas fa-heart"></i> by Axody</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
     <script src="script.js"></script>
 </body>
 </html> 
